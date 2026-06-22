@@ -1,5 +1,8 @@
 #include "LuauVM.hpp"
 #include <stdexcept>
+#include <lua.h>
+#include <lualib.h>
+#include <luacode.h>
 
 static void* luau_alloc(void* ud, void* ptr, size_t osize, size_t nsize) {
     if (nsize == 0) {
@@ -11,7 +14,14 @@ static void* luau_alloc(void* ud, void* ptr, size_t osize, size_t nsize) {
 
 LuauVM::LuauVM() {
     L = lua_newstate(luau_alloc, NULL);
-    luaL_openlibs(L);
+    luaopen_base(L);
+    luaopen_string(L);
+    luaopen_table(L);
+    luaopen_math(L);
+    luaopen_debug(L);
+    luaopen_coroutine(L);
+    luaopen_utf8(L);
+    luaopen_os(L);
 }
 
 LuauVM::~LuauVM() {
@@ -41,7 +51,14 @@ int LuauVM::execute(int nargs, int nresults) {
 void LuauVM::reset() {
     if (L) lua_close(L);
     L = lua_newstate(luau_alloc, NULL);
-    luaL_openlibs(L);
+    luaopen_base(L);
+    luaopen_string(L);
+    luaopen_table(L);
+    luaopen_math(L);
+    luaopen_debug(L);
+    luaopen_coroutine(L);
+    luaopen_utf8(L);
+    luaopen_os(L);
 }
 
 lua_State* LuauVM::state() { return L; }
