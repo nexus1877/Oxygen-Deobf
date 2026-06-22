@@ -4,7 +4,6 @@
 #include <lua.h>
 #include <luacode.h>
 #include <Luau/Compiler.h>
-#include <Luau/BytecodeBuilder.h>
 
 class LuauVM {
 public:
