@@ -4,6 +4,7 @@
 #include <lualib.h>
 #include <luacode.h>
 #include <unordered_set>
+#include <iostream>
 
 static void* luau_alloc(void*, void* ptr, size_t, size_t nsize) {
     if (nsize == 0) { free(ptr); return nullptr; }
@@ -64,15 +65,21 @@ DeobfResult Sandbox::extractAllDefinedFunctions(const std::string& obfuscatedSou
     std::string wrapped = obfuscatedSource;
     int status = luau_load(L, "=deobf", wrapped.data(), wrapped.size(), 0);
     if (status != 0) {
+        std::cerr << "[Sandbox] load error: " << lua_tostring(L, -1) << std::endl;
+        lua_pop(L, 1);
         wrapped = "return " + obfuscatedSource;
         status = luau_load(L, "=deobf2", wrapped.data(), wrapped.size(), 0);
         if (status != 0) {
+            std::cerr << "[Sandbox] load error (retry): " << lua_tostring(L, -1) << std::endl;
+            lua_pop(L, 1);
             result.cleanSource = obfuscatedSource;
             return result;
         }
     }
 
     if (lua_pcall(L, 0, 1, 0) != LUA_OK) {
+        std::cerr << "[Sandbox] runtime error: " << lua_tostring(L, -1) << std::endl;
+        lua_pop(L, 1);
         result.cleanSource = obfuscatedSource;
         return result;
     }
