@@ -16,10 +16,6 @@ set(SOURCES
     src/Core/ErrorFixer.cpp
     src/Utils/Logger.cpp
     src/Utils/FileUtils.cpp
-    src/Obfuscators/IronBrew.cpp
-    src/Obfuscators/MoonSec.cpp
-    src/Obfuscators/Prometheus.cpp
-    src/Obfuscators/WeAreDevs.cpp
 )
 
 add_executable(OxygenDeobf ${SOURCES})
