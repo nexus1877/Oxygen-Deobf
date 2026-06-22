@@ -57,8 +57,8 @@ static std::string applyRenames(const std::string& source, const std::unordered_
 }
 
 std::string renameVariables(const std::string& source) {
-    Luau::AstNameTable names;
     Luau::Allocator allocator;
+    Luau::AstNameTable names(allocator);   
     Luau::ParseOptions options;
     Luau::ParseResult parseResult = Luau::Parser::parse(source.c_str(), source.size(), names, allocator, options);
     if (!parseResult.root) return source;
