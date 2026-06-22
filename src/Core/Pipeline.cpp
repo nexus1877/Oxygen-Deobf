@@ -1,5 +1,7 @@
 #include "Pipeline.hpp"
 #include "Sandbox.hpp"
+#include "VariableRenamer.hpp"
+#include "ErrorFixer.hpp"
 #include "../Utils/FileUtils.hpp"
 #include "../Utils/Logger.hpp"
 #include "../Obfuscators/IronBrew.cpp"
@@ -22,18 +24,25 @@ Obfuscator Pipeline::detectObfuscator(const std::string& source) {
 }
 
 std::string Pipeline::deobfuscate(Obfuscator type, const std::string& source) {
+    std::string clean;
     Sandbox sb;
     switch (type) {
-        case Obfuscator::IronBrew:   return IronBrew::deob(source);
-        case Obfuscator::MoonSec:    return MoonSec::deob(source);
-        case Obfuscator::Prometheus: return Prometheus::deob(source);
-        case Obfuscator::WeAreDevs:  return WeAreDevs::deob(source);
+        case Obfuscator::IronBrew:   clean = IronBrew::deob(source); break;
+        case Obfuscator::MoonSec:    clean = MoonSec::deob(source); break;
+        case Obfuscator::Prometheus: clean = Prometheus::deob(source); break;
+        case Obfuscator::WeAreDevs:  clean = WeAreDevs::deob(source); break;
         default: {
             auto result = sb.extractFunctions(source);
-            if (result.cleanSource.empty()) return source;
-            return result.cleanSource;
+            clean = result.cleanSource.empty() ? source : result.cleanSource;
+            break;
         }
     }
+
+    clean = renameVariables(clean);
+    clean = autoFixSource(clean);
+
+    if (clean.empty()) clean = source;
+    return clean;
 }
 
 std::string Pipeline::process(const std::string& filename) {
