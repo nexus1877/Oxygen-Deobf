@@ -1,8 +1,16 @@
 #include "LuauVM.hpp"
 #include <stdexcept>
 
+static void* luau_alloc(void* ud, void* ptr, size_t osize, size_t nsize) {
+    if (nsize == 0) {
+        free(ptr);
+        return NULL;
+    }
+    return realloc(ptr, nsize);
+}
+
 LuauVM::LuauVM() {
-    L = luaL_newstate();
+    L = lua_newstate(luau_alloc, NULL);
     luaL_openlibs(L);
 }
 
@@ -31,8 +39,8 @@ int LuauVM::execute(int nargs, int nresults) {
 }
 
 void LuauVM::reset() {
-    lua_close(L);
-    L = luaL_newstate();
+    if (L) lua_close(L);
+    L = lua_newstate(luau_alloc, NULL);
     luaL_openlibs(L);
 }
 
