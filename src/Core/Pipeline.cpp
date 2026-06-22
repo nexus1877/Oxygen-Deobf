@@ -23,7 +23,7 @@ std::string Pipeline::deobfuscate(Obfuscator type, const std::string& source) {
     Sandbox sb;
     std::string clean;
 
-    if (source.find("wearedevs") != std::string::npos) {
+    if (type == Obfuscator::WeAreDevs) {
         std::string hook;
         try {
             hook = FileUtils::readFile("/data/data/com.termux/files/home/Oxygen-Deobf/src/Core/WeAreDevsHook.lua");
@@ -31,7 +31,8 @@ std::string Pipeline::deobfuscate(Obfuscator type, const std::string& source) {
             hook = "";
         }
         if (!hook.empty()) {
-            auto result = sb.extractFunctions(hook + "\n" + source);
+            std::string merged = hook + "\n" + source;
+            auto result = sb.extractFunctions(merged);
             clean = result.cleanSource.empty() ? source : result.cleanSource;
         } else {
             auto result = sb.extractFunctions(source);
